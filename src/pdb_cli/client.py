@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -10,7 +9,7 @@ from urllib.parse import quote
 
 import httpx
 
-from .cache import DEFAULT_CACHE_MAX_BYTES, DiskLRUCache, default_cache_dir
+from .cache import ResponseCache, default_response_cache
 from .metadata import base_url_for_service, endpoint_docs
 
 QueryParamValue = str | int | float | bool | None
@@ -47,15 +46,12 @@ class PdbClient:
     def __init__(
         self,
         *,
-        cache: DiskLRUCache | None = None,
+        cache: ResponseCache | None = None,
         transport: httpx.BaseTransport | None = None,
         timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
         cache_ttl_seconds: float | None = None,
     ) -> None:
-        self.cache = cache or DiskLRUCache(
-            root=default_cache_dir(),
-            max_bytes=int(os.environ.get("PDB_CLI_CACHE_MAX_BYTES", DEFAULT_CACHE_MAX_BYTES)),
-        )
+        self.cache = cache or default_response_cache()
         self.cache_ttl_seconds = cache_ttl_seconds
         self._http = httpx.Client(timeout=timeout_seconds, transport=transport)
 

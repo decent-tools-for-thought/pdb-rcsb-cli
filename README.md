@@ -6,7 +6,7 @@
 ![Python](https://img.shields.io/badge/python-3.11%2B-0ea5e9)
 ![License](https://img.shields.io/badge/license-0BSD-14b8a6)
 
-Command-line client for RCSB PDB documented operation calls, Search API requests, GraphQL queries, alignment jobs, offline docs, and local response caching.
+Command-line client for RCSB PDB documented operation calls, Search API requests, GraphQL queries, alignment jobs, offline docs, and optional local response caching.
 
 </div>
 
@@ -17,6 +17,7 @@ Command-line client for RCSB PDB documented operation calls, Search API requests
 - [Install](#install)
 - [Functionality](#functionality)
 - [Configuration](#configuration)
+- [Config File](#config-file)
 - [Quick Start](#quick-start)
 - [Credits](#credits)
 
@@ -58,12 +59,25 @@ $$\color{#0EA5E9}Cache \space \color{#14B8A6}Control$$
 ## Configuration
 $$\color{#0EA5E9}Tune \space \color{#14B8A6}Defaults$$
 
-By default the CLI uses the published RCSB PDB endpoints, caches successful responses on disk, and auto-decodes responses based on content type.
+By default the CLI uses the published RCSB PDB endpoints, leaves response caching disabled, and auto-decodes responses based on content type.
 
 - Use `--decode json|text|bytes` when you want to override automatic response decoding.
+- Use `--max-cache-size-gb` with a value greater than `0` to enable local caching.
 - Use `--no-cache` or `--refresh` when you want live responses instead of cached ones.
 
 The main environment variables are `PDB_CLI_CACHE_DIR`, `PDB_CLI_CACHE_MAX_BYTES`, `PDB_DATA_BASE_URL`, `PDB_SEARCH_BASE_URL`, `PDB_MODEL_BASE_URL`, `PDB_VOLUME_BASE_URL`, `PDB_SEQUENCE_BASE_URL`, `PDB_ALIGNMENT_BASE_URL`, and `XDG_CACHE_HOME`.
+
+## Config File
+$$\color{#0EA5E9}Set \space \color{#14B8A6}Defaults$$
+
+The CLI reads optional defaults from `$XDG_CONFIG_HOME/pdb-cli/config.toml`, falling back to `~/.config/pdb-cli/config.toml`.
+
+Start from `config/default-config.toml` in this repo. The shipped default keeps caching off:
+
+```toml
+[cache]
+max_size_gb = 0.0
+```
 
 ## Quick Start
 $$\color{#0EA5E9}Try \space \color{#14B8A6}Browse$$

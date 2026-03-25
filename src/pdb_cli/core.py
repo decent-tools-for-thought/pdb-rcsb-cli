@@ -7,13 +7,14 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from .cache import DEFAULT_CACHE_MAX_BYTES, DiskLRUCache, default_cache_dir
+from .cache import CacheSettings, DiskLRUCache, create_response_cache, load_cache_settings
 from .client import PdbClient, PdbCliError
 from .docs import render_docs
 from .metadata import available_operation_keys
 
 
-def build_parser() -> argparse.ArgumentParser:
+def build_parser(cache_settings: CacheSettings | None = None) -> argparse.ArgumentParser:
+    settings = load_cache_settings() if cache_settings is None else cache_settings
     parser = argparse.ArgumentParser(prog="pdb-cli")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -22,7 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
     request_parser.add_argument("--path", action="append", default=[], metavar="NAME=VALUE")
     request_parser.add_argument("--query", action="append", default=[], metavar="NAME=VALUE")
     request_parser.add_argument("--body-json", default=None)
-    _add_runtime_args(request_parser)
+    _add_runtime_args(request_parser, settings)
     request_parser.add_argument(
         "--decode", choices=["auto", "json", "text", "bytes"], default="auto"
     )
@@ -30,7 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
     search_parser = subparsers.add_parser("search", help="Run a Search API query")
     search_parser.add_argument("--body-json", required=True)
     search_parser.add_argument("--method", choices=["GET", "POST"], default="POST")
-    _add_runtime_args(search_parser)
+    _add_runtime_args(search_parser, settings)
     search_parser.add_argument(
         "--decode", choices=["auto", "json", "text", "bytes"], default="auto"
     )
@@ -39,7 +40,7 @@ def build_parser() -> argparse.ArgumentParser:
     graphql_parser.add_argument("service", choices=["data", "sequence"])
     graphql_parser.add_argument("query")
     graphql_parser.add_argument("--variables-json", default=None)
-    _add_runtime_args(graphql_parser)
+    _add_runtime_args(graphql_parser, settings)
     graphql_parser.add_argument(
         "--decode", choices=["auto", "json", "text", "bytes"], default="json"
     )
@@ -49,7 +50,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     alignment_submit = alignment_subparsers.add_parser("submit", help="Submit an alignment job")
     alignment_submit.add_argument("--body-json", required=True)
-    _add_runtime_args(alignment_submit)
+    _add_runtime_args(alignment_submit, settings)
     alignment_submit.add_argument(
         "--decode", choices=["auto", "json", "text", "bytes"], default="json"
     )
@@ -58,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
         "results", help="Fetch alignment job status/results"
     )
     alignment_results.add_argument("uuid")
-    _add_runtime_args(alignment_results)
+    _add_runtime_args(alignment_results, settings)
     alignment_results.add_argument(
         "--decode", choices=["auto", "json", "text", "bytes"], default="json"
     )
@@ -76,19 +77,25 @@ def build_parser() -> argparse.ArgumentParser:
     cache_subparsers = cache_parser.add_subparsers(dest="cache_command", required=True)
 
     cache_stats = cache_subparsers.add_parser("stats", help="Show cache statistics")
-    _add_cache_only_args(cache_stats)
+    _add_cache_only_args(cache_stats, settings)
 
     cache_prune = cache_subparsers.add_parser("prune", help="Evict old cache entries")
-    _add_cache_only_args(cache_prune)
+    _add_cache_only_args(cache_prune, settings)
 
     cache_clear = cache_subparsers.add_parser("clear", help="Delete all cache entries")
-    _add_cache_only_args(cache_clear)
+    _add_cache_only_args(cache_clear, settings)
 
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = build_parser()
+    try:
+        cache_settings = load_cache_settings()
+    except ValueError as error:
+        sys.stderr.write(f"error: {error}\n")
+        return 2
+
+    parser = build_parser(cache_settings)
     args = parser.parse_args(argv)
     try:
         if args.command == "docs":
@@ -102,9 +109,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def _run_remote(args: argparse.Namespace) -> int:
-    cache = DiskLRUCache(root=args.cache_dir, max_bytes=_gigabytes_to_bytes(args.max_cache_size_gb))
+    max_bytes = _gigabytes_to_bytes(args.max_cache_size_gb)
+    cache = create_response_cache(root=args.cache_dir, max_bytes=max_bytes)
     with PdbClient(cache=cache) as client:
-        use_cache = not args.no_cache
+        use_cache = not args.no_cache and max_bytes > 0
         refresh = args.refresh
         decode = getattr(args, "decode", "auto")
         if args.command == "request":
@@ -208,23 +216,23 @@ def _run_docs(args: argparse.Namespace) -> int:
     return 0
 
 
-def _add_runtime_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--cache-dir", type=Path, default=default_cache_dir())
+def _add_runtime_args(parser: argparse.ArgumentParser, settings: CacheSettings) -> None:
+    parser.add_argument("--cache-dir", type=Path, default=settings.cache_dir)
     parser.add_argument(
         "--max-cache-size-gb",
         type=float,
-        default=DEFAULT_CACHE_MAX_BYTES / 1024**3,
+        default=settings.max_size_gb,
     )
     parser.add_argument("--no-cache", action="store_true")
     parser.add_argument("--refresh", action="store_true")
 
 
-def _add_cache_only_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--cache-dir", type=Path, default=default_cache_dir())
+def _add_cache_only_args(parser: argparse.ArgumentParser, settings: CacheSettings) -> None:
+    parser.add_argument("--cache-dir", type=Path, default=settings.cache_dir)
     parser.add_argument(
         "--max-size-gb",
         type=float,
-        default=DEFAULT_CACHE_MAX_BYTES / 1024**3,
+        default=settings.max_size_gb,
     )
 
 
@@ -250,6 +258,6 @@ def _write_response(response: Any) -> None:
 
 
 def _gigabytes_to_bytes(size_gb: float) -> int:
-    if size_gb <= 0:
-        raise PdbCliError("cache size must be positive")
+    if size_gb < 0:
+        raise PdbCliError("cache size must be non-negative")
     return int(size_gb * 1024**3)
