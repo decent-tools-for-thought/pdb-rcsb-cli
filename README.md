@@ -17,7 +17,6 @@ Command-line client for RCSB PDB documented operation calls, Search API requests
 - [Install](#install)
 - [Functionality](#functionality)
 - [Configuration](#configuration)
-- [Config File](#config-file)
 - [Quick Start](#quick-start)
 - [Credits](#credits)
 
@@ -67,7 +66,7 @@ By default the CLI uses the published RCSB PDB endpoints, leaves response cachin
 
 The main environment variables are `PDB_CLI_CACHE_DIR`, `PDB_CLI_CACHE_MAX_BYTES`, `PDB_DATA_BASE_URL`, `PDB_SEARCH_BASE_URL`, `PDB_MODEL_BASE_URL`, `PDB_VOLUME_BASE_URL`, `PDB_SEQUENCE_BASE_URL`, `PDB_ALIGNMENT_BASE_URL`, and `XDG_CACHE_HOME`.
 
-## Config File
+### Config File
 $$\color{#0EA5E9}Set \space \color{#14B8A6}Defaults$$
 
 The CLI reads optional defaults from `$XDG_CONFIG_HOME/pdb-cli/config.toml`, falling back to `~/.config/pdb-cli/config.toml`.
