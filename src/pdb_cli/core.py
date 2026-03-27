@@ -15,7 +15,7 @@ from .metadata import available_operation_keys
 
 def build_parser(cache_settings: CacheSettings | None = None) -> argparse.ArgumentParser:
     settings = load_cache_settings() if cache_settings is None else cache_settings
-    parser = argparse.ArgumentParser(prog="pdb-cli")
+    parser = argparse.ArgumentParser(prog="pdb")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     request_parser = subparsers.add_parser("request", help="Call a documented operation by key")

@@ -25,35 +25,35 @@ $$\color{#0EA5E9}Install \space \color{#14B8A6}Tool$$
 
 ```bash
 uv tool install .   # install the CLI
-pdb-cli --help      # inspect the command surface
+pdb --help      # inspect the command surface
 ```
 
 ## Functionality
 $$\color{#0EA5E9}Documented \space \color{#14B8A6}Calls$$
-- `pdb-cli request <operation>`: call any bundled documented operation by operation key.
-- `pdb-cli request --path NAME=VALUE --query NAME=VALUE --body-json ...`: fill path parameters, query parameters, and request bodies explicitly.
+- `pdb request <operation>`: call any bundled documented operation by operation key.
+- `pdb request --path NAME=VALUE --query NAME=VALUE --body-json ...`: fill path parameters, query parameters, and request bodies explicitly.
 - The shipped operation catalog covers RCSB PDB data, search, model, volume, sequence, and alignment surfaces.
 
 $$\color{#0EA5E9}Search \space \color{#14B8A6}GraphQL$$
-- `pdb-cli search --body-json ...`: run a Search API query.
-- `pdb-cli search --method GET|POST`: choose the GET or POST search transport explicitly.
-- `pdb-cli graphql data <query>`: run a Data API GraphQL request.
-- `pdb-cli graphql sequence <query>`: run a Sequence Coordinates GraphQL request.
-- `pdb-cli graphql --variables-json ...`: send GraphQL variables as JSON.
+- `pdb search --body-json ...`: run a Search API query.
+- `pdb search --method GET|POST`: choose the GET or POST search transport explicitly.
+- `pdb graphql data <query>`: run a Data API GraphQL request.
+- `pdb graphql sequence <query>`: run a Sequence Coordinates GraphQL request.
+- `pdb graphql --variables-json ...`: send GraphQL variables as JSON.
 
 $$\color{#0EA5E9}Alignment \space \color{#14B8A6}Jobs$$
-- `pdb-cli alignment submit --body-json ...`: submit a structure-alignment job.
-- `pdb-cli alignment results <uuid>`: fetch alignment job status or results by UUID.
+- `pdb alignment submit --body-json ...`: submit a structure-alignment job.
+- `pdb alignment results <uuid>`: fetch alignment job status or results by UUID.
 
 $$\color{#0EA5E9}Docs \space \color{#14B8A6}Inspect$$
-- `pdb-cli docs [selector]`: print LLM-friendly documentation for the supported RCSB endpoints.
-- `pdb-cli docs --format markdown|json`: emit either Markdown or machine-readable JSON.
-- `pdb-cli --decode auto|json|text|bytes`: choose response decoding behavior for request, search, GraphQL, and alignment commands.
+- `pdb docs [selector]`: print LLM-friendly documentation for the supported RCSB endpoints.
+- `pdb docs --format markdown|json`: emit either Markdown or machine-readable JSON.
+- `pdb --decode auto|json|text|bytes`: choose response decoding behavior for request, search, GraphQL, and alignment commands.
 
 $$\color{#0EA5E9}Cache \space \color{#14B8A6}Control$$
-- `pdb-cli cache stats`: show cache size and entry counts.
-- `pdb-cli cache prune --max-size-gb <n>`: evict older cache entries until the cache fits the target cap.
-- `pdb-cli cache clear`: remove all cached responses.
+- `pdb cache stats`: show cache size and entry counts.
+- `pdb cache prune --max-size-gb <n>`: evict older cache entries until the cache fits the target cap.
+- `pdb cache clear`: remove all cached responses.
 
 ## Configuration
 $$\color{#0EA5E9}Tune \space \color{#14B8A6}Defaults$$
@@ -82,12 +82,12 @@ max_size_gb = 0.0
 $$\color{#0EA5E9}Try \space \color{#14B8A6}Browse$$
 
 ```bash
-pdb-cli request data.entry --path entry_id=4HHB                                         # fetch one entry
-pdb-cli request data.polymer-entity --path entry_id=4HHB --path entity_id=1             # fetch one polymer entity
-pdb-cli graphql data '{ entry(entry_id: "4HHB") { struct { title } } }'                 # run a GraphQL query
-pdb-cli search --body-json '{"query":{"type":"terminal","service":"text","parameters":{"operator":"exact_match","value":"hemoglobin"}},"return_type":"entry"}'
-pdb-cli alignment submit --body-json '{"query":{"context":"PDB","structures":[{"entry_id":"4HHB","selection":{"entity_id":"1"}},{"entry_id":"2HHB","selection":{"entity_id":"1"}}],"operator":"jFATCAT-rigid"}}'
-pdb-cli docs model --format json                                                        # inspect bundled docs
+pdb request data.entry --path entry_id=4HHB                                         # fetch one entry
+pdb request data.polymer-entity --path entry_id=4HHB --path entity_id=1             # fetch one polymer entity
+pdb graphql data '{ entry(entry_id: "4HHB") { struct { title } } }'                 # run a GraphQL query
+pdb search --body-json '{"query":{"type":"terminal","service":"text","parameters":{"operator":"exact_match","value":"hemoglobin"}},"return_type":"entry"}'
+pdb alignment submit --body-json '{"query":{"context":"PDB","structures":[{"entry_id":"4HHB","selection":{"entity_id":"1"}},{"entry_id":"2HHB","selection":{"entity_id":"1"}}],"operator":"jFATCAT-rigid"}}'
+pdb docs model --format json                                                        # inspect bundled docs
 ```
 
 ## Credits
