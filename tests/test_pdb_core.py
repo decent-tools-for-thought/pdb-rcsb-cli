@@ -21,7 +21,7 @@ def test_request_parser_exposes_generated_operation_keys() -> None:
 def test_parser_reads_cache_defaults_from_xdg_config(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    config_path = tmp_path / "pdb-cli" / "config.toml"
+    config_path = tmp_path / "pdb-rcsb-cli" / "config.toml"
     config_path.parent.mkdir(parents=True)
     config_path.write_text(
         '[cache]\nmax_size_gb = 0.75\ndir = "/tmp/pdb-cache"\n',

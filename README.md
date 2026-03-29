@@ -69,7 +69,7 @@ The main environment variables are `PDB_CLI_CACHE_DIR`, `PDB_CLI_CACHE_MAX_BYTES
 ### Config File
 $$\color{#0EA5E9}Set \space \color{#14B8A6}Defaults$$
 
-The CLI reads optional defaults from `$XDG_CONFIG_HOME/pdb-cli/config.toml`, falling back to `~/.config/pdb-cli/config.toml`.
+The CLI reads optional defaults from `$XDG_CONFIG_HOME/pdb-rcsb-cli/config.toml`, falling back to `~/.config/pdb-rcsb-cli/config.toml`.
 
 Start from `config/default-config.toml` in this repo. The shipped default keeps caching off:
 

@@ -3,12 +3,13 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pdb-cli"
+name = "pdb-rcsb-cli"
 version = "0.1.0"
 description = "Command-line client for the RCSB PDB programmatic APIs"
 readme = "README.md"
 requires-python = ">=3.13"
-license = { text = "0BSD" }
+license = "0BSD"
+license-files = ["LICENSE"]
 dependencies = [
   "httpx>=0.28.1",
 ]
@@ -32,7 +33,6 @@ pdb = "pdb_cli.cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
-license-files = ["LICENSE"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

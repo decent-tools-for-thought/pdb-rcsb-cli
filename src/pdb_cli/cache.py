@@ -38,15 +38,15 @@ def default_cache_dir() -> Path:
         return Path(override).expanduser()
     xdg_cache_home = os.environ.get("XDG_CACHE_HOME")
     if xdg_cache_home:
-        return Path(xdg_cache_home).expanduser() / "pdb-cli"
-    return Path.home() / ".cache" / "pdb-cli"
+        return Path(xdg_cache_home).expanduser() / "pdb-rcsb-cli"
+    return Path.home() / ".cache" / "pdb-rcsb-cli"
 
 
 def default_config_path() -> Path:
     xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
     if xdg_config_home:
-        return Path(xdg_config_home).expanduser() / "pdb-cli" / CONFIG_FILE_NAME
-    return Path.home() / ".config" / "pdb-cli" / CONFIG_FILE_NAME
+        return Path(xdg_config_home).expanduser() / "pdb-rcsb-cli" / CONFIG_FILE_NAME
+    return Path.home() / ".config" / "pdb-rcsb-cli" / CONFIG_FILE_NAME
 
 
 def load_cache_settings() -> CacheSettings:
